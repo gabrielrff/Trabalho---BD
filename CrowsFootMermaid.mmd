@@ -1,0 +1,126 @@
+erDiagram
+    EVENTO ||--o{ PROMOVE : promove
+    EVENTO ||--o{ COLABORA : colabora
+    EVENTO ||--o{ INSCRICAO_EVENTO : inscricao
+    EVENTO ||--o{ ATIVIDADE : contém
+    AGENTE ||--o{ PROMOVE : promove
+    AGENTE ||--o{ PESSOA : especializa
+    AGENTE ||--o{ ORGANIZACAO : especializa
+    PESSOA ||--o{ COLABORA : colabora
+    PESSOA ||--o{ INSCRICAO_EVENTO : inscreve
+    PESSOA ||--o{ ATUA : atua
+    PESSOA ||--o{ INSCRICAO_SESSAO : inscreve
+    ATIVIDADE ||--o{ ATUA : atua
+    ATIVIDADE ||--o{ SESSAO : sessao
+    ATIVIDADE ||--o{ REQUER : requer
+    ATIVIDADE ||--o{ ALTERACAO_SESSAO : altera
+    SESSAO ||--o{ INSCRICAO_SESSAO : inscricao
+    SESSAO ||--o{ REQUER : requer
+    SESSAO ||--o{ ALTERACAO_SESSAO : alteracao
+    ESPACO ||--o{ DISPOE : dispoe
+    ESPACO ||--o{ SESSAO : realiza
+    ESPACO ||--o{ ALTERACAO_SESSAO : espaco_anterior
+    RECURSO ||--o{ DISPOE : disponível
+    RECURSO ||--o{ REQUER : requerido
+
+    EVENTO {
+        string evento_id PK
+        string nome
+        string descricao
+        int num_edicao
+        date data_inicio
+        date data_fim
+        int num_vagas
+        int duracao_dias "gerado"
+    }
+    AGENTE {
+        string agente_id PK
+        string nome
+        string telefone
+        string email UK
+    }
+    PESSOA {
+        string agente_id PK, FK
+        string cpf UK
+    }
+    ORGANIZACAO {
+        string agente_id PK, FK
+        string cnpj UK
+    }
+    PROMOVE {
+        string evento_id PK, FK
+        string agente_id PK, FK
+    }
+    COLABORA {
+        string evento_id PK, FK
+        string pessoa_id PK, FK
+        string funcao
+    }
+    INSCRICAO_EVENTO {
+        string evento_id PK, FK
+        string pessoa_id PK, FK
+        date data_inscricao
+        string status
+    }
+    ATIVIDADE {
+        string atividade_id PK
+        string evento_id FK
+        string titulo
+        string descricao
+        string tipo
+    }
+    ATUA {
+        string atividade_id PK, FK
+        string pessoa_id PK, FK
+        string papel
+    }
+    ESPACO {
+        string espaco_id PK
+        string nome UK
+        int capacidade
+        string tipo
+    }
+    RECURSO {
+        string recurso_id PK
+        string nome UK
+    }
+    DISPOE {
+        string espaco_id PK, FK
+        string recurso_id PK, FK
+        int quantidade
+    }
+    SESSAO {
+        string atividade_id PK, FK
+        int num_sessao PK
+        string espaco_id FK
+        date data
+        time hora_inicio
+        time hora_fim
+        int vagas_limite
+        string status
+        int duracao_minutos "gerado"
+    }
+    INSCRICAO_SESSAO {
+        string atividade_id PK, FK
+        int num_sessao PK, FK
+        string pessoa_id PK, FK
+        timestamp data_hora_inscricao
+        string status
+    }
+    REQUER {
+        string atividade_id PK, FK
+        int num_sessao PK, FK
+        string recurso_id PK, FK
+        int quantidade
+    }
+    ALTERACAO_SESSAO {
+        string atividade_id PK, FK
+        int num_sessao PK, FK
+        int num_alteracao PK
+        timestamp data_hora_alteracao
+        date data_anterior
+        time hora_inicio_anterior
+        time hora_fim_anterior
+        string espaco_anterior FK
+        string motivo
+    }

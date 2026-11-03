@@ -1,0 +1,14 @@
+# Rascunhos (o conteudo oficial esta no Projeto.txt)
+DDL.sql
+Consultas.txt
+ddl_extraido.sql
+
+# Material do enunciado
+01.Projeto-SCC0640-*.pdf
+03.Projeto-SCC0640-*.pdf
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
