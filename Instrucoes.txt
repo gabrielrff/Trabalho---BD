@@ -1,0 +1,97 @@
+============================================================
+SCC0640 - PROJETO DE BASES DE DADOS
+SISTEMA DE GESTÃO DE EVENTOS E ESPAÇOS - INSTRUÇÕES
+============================================================
+
+INTEGRANTES
+Gabriel Ribeiro Fonseca de Freitas - 12542651
+Guilherme Vaz de Oliveira Taratá - 10817476
+Keren Lopes Gomes - 12777204
+Pedro Santos Souza - 12567502
+Didrick Chancel Egnina Ndombi - 14822368
+
+============================================================
+1. REQUISITOS DE SOFTWARE
+============================================================
+- PostgreSQL 13 ou superior (testado nas versões 17 e 18)
+- Python 3.11 ou superior
+- Ollama em execução, com o modelo baixado: ollama pull qwen3:8b
+- Bibliotecas Python (Prototipo/requirements.txt): ollama, psycopg[binary]
+
+Estrutura esperada após descompactar (Projeto.txt e DML.sql ficam na pasta acima de Prototipo):
+  Projeto.txt
+  DML.sql
+  Prototipo/main.py
+  Prototipo/config.json
+  Prototipo/requirements.txt
+
+============================================================
+2. CRIAÇÃO DA BASE
+============================================================
+2.1. Criar um banco vazio chamado eventos:
+       psql -U postgres -c "CREATE DATABASE eventos"
+     (ou pelo pgAdmin: Databases > Create > Database)
+
+2.2. Criar a estrutura (schema eventos com tipos, domínios, tabelas, funções e triggers):
+     pelo protótipo, opção I do menu (ver seção 4), que executa a seção
+     "3. DDL COMPLETO" do Projeto.txt.
+     Alternativa manual: executar no banco eventos o conteúdo da seção
+     "3. DDL COMPLETO" do Projeto.txt (por exemplo, no Query Tool do pgAdmin).
+
+Observação: o DDL apaga e recria o schema eventos e configura o search_path do banco
+(ALTER DATABASE), por isso o usuário deve ser o dono do banco eventos ou o postgres.
+
+============================================================
+3. EXECUÇÃO DO DML
+============================================================
+A opção I do protótipo carrega o DML.sql logo após criar a estrutura.
+Alternativa manual (após o passo 2.2):
+       psql -U postgres -d eventos -f DML.sql
+O DML.sql pode ser executado novamente: ele limpa as tabelas antes de inserir os dados.
+
+============================================================
+4. EXECUÇÃO DO PROTÓTIPO
+============================================================
+4.1. Instalar as dependências:
+       cd Prototipo
+       python -m pip install -r requirements.txt
+
+4.2. Ajustar o Prototipo/config.json, se necessário (normalmente apenas a senha):
+       database: host, port, dbname (eventos), user, password
+       ollama:   host (http://localhost:11434), model (qwen3:8b)
+     Nenhum arquivo .py precisa ser alterado.
+
+4.3. Executar:
+       python main.py
+
+4.4. Uso:
+     - Conexão: ENTER usa os parâmetros do config.json; "n" permite digitá-los.
+     - I: cria a estrutura e carrega os dados (digitar SIM para confirmar).
+          Resultado esperado: "Estrutura criada." e "Dados carregados."
+     - 1 a 5: executam as consultas da seção "4. CONSULTAS" do Projeto.txt.
+     - P: pergunta em linguagem natural; o modelo gera o SQL, que é exibido e
+          executado em transação somente leitura.
+     - 0: sair.
+
+============================================================
+5. MODELO UTILIZADO NO OLLAMA
+============================================================
+qwen3:8b
+
+============================================================
+6. LIMITAÇÕES OU FUNCIONALIDADES NÃO CONCLUÍDAS
+============================================================
+
+- Consultas em linguagem natural (opção P): tivemos dificuldade em obter respostas
+  consistentes do modelo. Para perguntas equivalentes às consultas do projeto, o SQL
+  gerado pelo qwen3:8b frequentemente retornava resultados diferentes dos obtidos pelas
+  mesmas consultas escritas diretamente em SQL (opções 1 a 5), por exemplo por escolher
+  junções ou filtros incorretos, ou confundir o nome de um evento com o título de uma
+  atividade. Como o modelo não é determinístico, a mesma pergunta também pode gerar SQL
+  diferente a cada execução.
+- Tentamos melhorar a precisão enviando ao modelo o modelo relacional e o DDL completo,
+  o que exige aumentar o contexto do modelo (cerca de 7.400 tokens de prompt, contexto de
+  16k). Com isso, o modelo passou a ocupar praticamente toda a memória das nossas
+  máquinas (8 GB de RAM) e uma única pergunta levou cerca de 25 minutos, tornando a
+  execução local inviável. Por isso, o protótipo envia apenas um resumo do esquema,
+  as junções principais, regras do domínio e exemplos, no contexto padrão do Ollama.

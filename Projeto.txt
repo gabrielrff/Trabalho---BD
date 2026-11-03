@@ -1,8 +1,15 @@
 ============================================================
 SCC0640 - PROJETO DE BASES DE DADOS
 ============================================================
-GRUPO:
-INTEGRANTES:
+GRUPO: DGGKP
+
+INTEGRANTES: 
+Gabriel Ribeiro Fonseca de Freitas - 12542651
+Guilherme Vaz de Oliveira Taratá - 10817476
+Keren Lopes Gomes - 12777204
+Pedro Santos Souza - 12567502
+Didrick Chancel Egnina Ndombi - 14822368
+
 MODELO UTILIZADO NO OLLAMA: qwen3:8b
 ============================================================
 1. DESCRICAO FINAL DO SISTEMA
@@ -13,12 +20,12 @@ Um prototipo em Python de linha de comando executa as 5 consultas deste arquivo 
 ============================================================
 2. DECISOES DE PROJETO
 ============================================================
-Q1: Promotores sao representados pela generalizacao AGENTE (nome, telefone, email) com especializacao total e disjunta em PESSOA (cpf) e ORGANIZACAO (cnpj), garantida por trigger; o relacionamento N:M PROMOVE permite varios promotores por evento, incluindo promocao conjunta entre organizacoes ou promocao direta por uma pessoa.
-Q2: Os papeis sao representados separadamente por relacionamentos distintos de PESSOA: INSCRICAO_EVENTO (participante, por evento), COLABORA (organizacao, por evento, com atributo funcao) e ATUA (realizacao, por atividade, com atributo papel: palestrante, instrutor, mediador, painelista ou monitor); assim uma mesma pessoa pode exercer varios papeis simultaneamente, dependentes do evento ou da atividade.
-Q3: ATIVIDADE guarda o que e ofertado no programa (titulo, descricao, tipo, evento) e SESSAO e entidade fraca de ATIVIDADE (chave atividade_id + num_sessao) com data, horario, espaco, vagas_limite e status; responsaveis (ATUA) ligam-se a atividade, enquanto inscricoes especificas, recursos exigidos (REQUER) e historico ligam-se a sessao.
-Q4: Cada edicao e um evento independente com evento_id proprio; edicoes de uma mesma iniciativa compartilham o nome e diferem por num_edicao, com UNIQUE (nome, num_edicao), e periodo, vagas, promotores, colaboradores, programacao e inscricoes pertencem a cada edicao.
-Q5: A inscricao no evento (limitada por num_vagas, NULL = ilimitado) da acesso a programacao geral; sessoes com vagas_limite NULL nao exigem inscricao, e as demais exigem inscricao especifica aceita por trigger somente para quem tem inscricao confirmada no evento, com limite efetivo igual ao menor valor entre vagas_limite e capacidade do espaco (vagas_limite nao pode exceder a capacidade); sem vaga a inscricao entra em LISTA_ESPERA e e promovida automaticamente, por ordem de inscricao, quando houver cancelamento.
-Q6: SESSAO guarda apenas a programacao atual e toda mudanca de data, horario ou espaco e preservada automaticamente por trigger em ALTERACAO_SESSAO (entidade fraca com num_alteracao sequencial, valores anteriores, data/hora da alteracao e motivo), permitindo recuperar o historico completo da sessao.
+Q1: Generalizacao AGENTE (nome, telefone, email) com especializacao total e disjunta em PESSOA e ORGANIZACAO (trigger); PROMOVE N:M permite varios promotores por evento.
+Q2: Cada papel e um relacionamento proprio de PESSOA: INSCRICAO_EVENTO (participante), COLABORA (organizador, com funcao) e ATUA (realizador, com papel na atividade).
+Q3: ATIVIDADE e o item do programa e SESSAO sua entidade fraca (data, horario, espaco, vagas); ATUA liga-se a atividade, e inscricoes, REQUER e historico a sessao.
+Q4: Cada edicao e um evento proprio, identificado por UNIQUE (nome, num_edicao), com periodo, vagas, promotores, programacao e inscricoes independentes.
+Q5: Inscricao no evento libera a programacao geral; sessoes com vagas_limite exigem inscricao especifica (limite = min(vagas, capacidade)), com LISTA_ESPERA e promocao automatica.
+Q6: SESSAO guarda so a programacao atual; trigger registra cada mudanca de data, horario ou espaco em ALTERACAO_SESSAO (entidade fraca), preservando o historico.
 ============================================================
 3. DDL COMPLETO
 ============================================================
