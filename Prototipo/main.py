@@ -9,6 +9,7 @@ import json
 import re
 import shutil
 import sys
+import textwrap
 import unicodedata
 from pathlib import Path
 
@@ -450,14 +451,31 @@ def inicializar_banco(conn):
 # ------------------------------------------------------------
 # Menu
 # ------------------------------------------------------------
+# Titulos curtos exibidos no menu; o objetivo completo aparece ao executar.
+# Consultas sem titulo aqui usam o OBJETIVO do Projeto.txt, com quebra de linha.
+RESUMOS = {
+    "1": "Programação do SBBD (41ª edição): horários, espaços, responsáveis e vagas",
+    "2": "Sessões com inscrição específica e ocupação de pelo menos 50%",
+    "3": "Pessoas que exerceram dois ou mais tipos de papel nos eventos",
+    "4": "Espaços alternativos livres e equipados para cada sessão",
+    "5": "Top 3 pessoas com maior carga horária em atividades, por evento",
+}
+
+
+def quebrar(texto, prefixo=""):
+    """Quebra o texto na largura do terminal, alinhando as linhas seguintes."""
+    largura = max(40, shutil.get_terminal_size((80, 24)).columns - 1)
+    return textwrap.fill(texto, width=largura, initial_indent=prefixo,
+                         subsequent_indent=" " * len(prefixo))
+
+
 def menu(conn, client):
     while True:
         print("\n" + "=" * 60)
         print("SISTEMA DE GESTÃO DE EVENTOS E ESPAÇOS")
         print("=" * 60)
         for c in CONSULTAS:
-            objetivo = c["objetivo"] if len(c["objetivo"]) <= 80 else c["objetivo"][:77] + "..."
-            print(f"{c['numero']}. {objetivo}")
+            print(quebrar(RESUMOS.get(c["numero"], c["objetivo"]), f"{c['numero']}. "))
         print("P. Fazer uma pergunta em linguagem natural (Ollama)")
         print("I. Inicializar banco (DDL do Projeto.txt + DML.sql)")
         print("0. Sair")
@@ -474,7 +492,7 @@ def menu(conn, client):
             if consulta is None:
                 print("Opção inválida.")
                 continue
-            print(f"\nCONSULTA {consulta['numero']}: {consulta['objetivo']}")
+            print("\n" + quebrar(consulta["objetivo"], f"CONSULTA {consulta['numero']}: "))
             erro = executar_consulta(conn, consulta["sql"])
             if erro:
                 print(f"\nErro ao executar a consulta: {erro}")
